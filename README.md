@@ -1,0 +1,9 @@
+# textarea
+
+Static website entrypoint: `/index.html`.
+
+PWA files:
+- `/manifest.webmanifest`
+- `/sw.js`
+- `/icon-192.png`
+- `/icon-512.png`

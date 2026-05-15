@@ -1,0 +1,20 @@
+:root {
+color-scheme: light dark;
+}
+
+body {
+    margin: 0;
+    font-size: 32pt;
+    min-height: 100vh;
+    font-family: Roboto;
+    display: grid;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+textarea{
+    border: none;
+    height: 100%;
+    font-size: 1em;
+    width: 100%;
+}
