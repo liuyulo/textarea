@@ -1,20 +1,18 @@
 const VERSION = "1.0.0";
 const CACHE_NAME = `textarea-${VERSION}`
 const APP_STATIC_RESOURCES = [
-  "/",
-  "/index.html",
-  "/style.css",
-  "/icon-512.png",
+  "./",
+  "./index.html",
+  "./style.css",
+  "./icon-512.png",
 ];
 
 // add cache when installing
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    (async () => {
+  event.waitUntil((async () => {
       const cache = await caches.open(CACHE_NAME);
       cache.addAll(APP_STATIC_RESOURCES);
-    })(),
-  );
+    })());
 });
 
 // delete old cache when updating the PWA
