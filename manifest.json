@@ -1,9 +1,9 @@
 {
   "short_name": "textarea",
-  "start_url": "/textarea/",
+  "start_url": "./",
   "icons": [
     {
-      "src": "icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512"
     }
   ],
