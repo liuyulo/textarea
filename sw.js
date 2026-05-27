@@ -1,41 +1,61 @@
-const CACHE_NAME = 'textarea-v1';
-const ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+const VERSION = "1.0.0";
+const CACHE_NAME = `textarea-${VERSION}`
+const APP_STATIC_RESOURCES = [
+  "/",
+  "/index.html",
+  "/style.css",
+  "/icon-512.png",
+];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
+// add cache when installing
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      cache.addAll(APP_STATIC_RESOURCES);
+    })(),
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-
-  const updateFromNetwork = () =>
-    fetch(event.request).then((response) => {
-      if (response && response.ok) {
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
-      }
-      return response;
-    });
-
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        event.waitUntil(updateFromNetwork().catch(() => null));
-        return cached;
-      }
-
-      return updateFromNetwork().catch(
-        () => new Response('Offline mode: cached data is unavailable for this request.', { status: 503 })
+// delete old cache when updating the PWA
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      const names = await caches.keys();
+      await Promise.all(
+        names.map((name) => {
+          if (name !== CACHE_NAME) {
+            return caches.delete(name);
+          }
+          return undefined;
+        }),
       );
-    })
+      await clients.claim();
+    })(),
+  );
+});
+
+
+// intercept `fetch` calls by responding with cached content
+self.addEventListener("fetch", (event) => {
+  // when seeking an HTML page
+  if (event.request.mode === "navigate") {
+    // Return to the index.html page
+    event.respondWith(caches.match("./"));
+    return;
+  }
+
+  // For every other request type
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cachedResponse = await cache.match(event.request.url);
+      if (cachedResponse) {
+        // Return the cached response if it's available.
+        return cachedResponse;
+      }
+      // Respond with a HTTP 404 response status.
+      return new Response(null, { status: 404 });
+    })(),
   );
 });
